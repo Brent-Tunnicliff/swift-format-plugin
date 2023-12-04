@@ -6,13 +6,7 @@ import PackageDescription
 
 let package = Package(
     name: "swift-format-plugin",
-    defaultLocalization: "en",
-    platforms: [
-        .iOS(.v17),
-        .macOS(.v14),
-        .tvOS(.v17),
-        .watchOS(.v10),
-    ],
+    platforms: [.macOS(.v10_15),],
     products: [
         // Products can be used to vend plugins, making them visible to other packages.
         .plugin(
