@@ -1,6 +1,6 @@
 // swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
-// Copyright © 2023 Brent Tunnicliff <btunnicliff.dev@gmail.com>
+// Copyright © 2023 Brent Tunnicliff <brent@tunnicliff.dev>
 
 import PackageDescription
 
