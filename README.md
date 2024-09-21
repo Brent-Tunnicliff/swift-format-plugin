@@ -18,20 +18,20 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Brent-Tunnicliff/swift-format-plugin", .upToNextMajor(from: "1.0.0")) // <- Add dependency
+        .package(url: "https://github.com/Brent-Tunnicliff/swift-format-plugin", .upToNextMajor(from: "2.0.0")) // <- Add dependency
     ],
     targets: [
         .target(
             name: "App",
             plugins: [
-                .plugin(name: "lint", package: "swift-format-plugin") // <- Add to target
+                .plugin(name: "LintBuildPlugin", package: "swift-format-plugin") // <- Add to target
             ]
         ),
         .testTarget(
             name: "AppTests",
             dependencies: ["App"],
             plugins: [
-                .plugin(name: "lint", package: "swift-format-plugin") // <- Add to test target
+                .plugin(name: "LintBuildPlugin", package: "swift-format-plugin") // <- Add to test target
             ]
         ),
     ]
