@@ -5,14 +5,14 @@ import PackagePlugin
 
 @main
 struct LintBuildPlugin: BuildToolPlugin {
-    private let swiftFormat = "swift-format"
+    private let swift = "swift"
 
     /// Entry point for creating build commands for targets in Swift packages.
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
         [
             try lint(
                 targetDirectory: target.targetDirectory,
-                tool: context.tool(named: swiftFormat)
+                tool: context.tool(named: swift)
             )
         ]
     }
@@ -27,7 +27,7 @@ extension LintBuildPlugin: XcodeBuildToolPlugin {
         [
             try lint(
                 targetDirectory: context.xcodeProject.directoryURL,
-                tool: context.tool(named: swiftFormat)
+                tool: context.tool(named: swift)
             )
         ]
     }
@@ -54,6 +54,7 @@ private extension LintBuildPlugin {
     func lint(targetDirectory: URL, tool: PluginContext.Tool) -> Command {
         let executable = tool.url
         let arguments = [
+            "format",
             "lint",
             targetDirectory.relativePath,
             "--recursive",
@@ -66,6 +67,8 @@ private extension LintBuildPlugin {
 }
 
 private extension Target {
+    // Swift 6.1 gives us a much nicer solution, so we will switch to that when we can.
+    @available(_PackageDescription, deprecated: 6.1, renamed: "directoryURL")
     var targetDirectory: URL {
         get throws {
             guard let directoryURL = knownTargetDirectory else {

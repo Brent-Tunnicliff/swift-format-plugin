@@ -13,16 +13,10 @@ let package = Package(
             targets: ["LintBuildPlugin"]
         ),
     ],
-    dependencies: [
-        .package(url: "https://github.com/apple/swift-format", .upToNextMajor(from: "600.0.0"))
-    ],
     targets: [
         .plugin(
             name: "LintBuildPlugin",
             capability: .buildTool(),
-            dependencies: [
-                .product(name: "swift-format", package: "swift-format")
-            ],
             path: "Plugins/LintBuildPlugin"
         ),
     ]
