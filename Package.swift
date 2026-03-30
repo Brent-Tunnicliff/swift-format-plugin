@@ -6,7 +6,6 @@ import PackageDescription
 
 let package = Package(
     name: "swift-format-plugin",
-    platforms: [.macOS(.v12),],
     products: [
         .plugin(
             name: "LintBuildPlugin",
