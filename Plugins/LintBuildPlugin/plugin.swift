@@ -9,11 +9,10 @@ struct LintBuildPlugin: BuildToolPlugin {
 
     /// Entry point for creating build commands for targets in Swift packages.
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
-        [
-            try lint(
-                targetDirectory: target.directoryURL,
-                tool: context.tool(named: swift)
-            )
+        let tool = try context.tool(named: swift)
+        return [
+            lint(url: target.directoryURL, tool: tool),
+            lint(url: context.package.directoryURL.appending(path: "Package.swift"), tool: tool),
         ]
     }
 }
@@ -24,24 +23,19 @@ import XcodeProjectPlugin
 extension LintBuildPlugin: XcodeBuildToolPlugin {
     // Entry point for creating build commands for targets in Xcode projects.
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        [
-            try lint(
-                targetDirectory: context.xcodeProject.directoryURL,
-                tool: context.tool(named: swift)
-            )
-        ]
+        [try lint(url: context.xcodeProject.directoryURL, tool: context.tool(named: swift))]
     }
 }
 
 #endif
 
 private extension LintBuildPlugin {
-    func lint(targetDirectory: URL, tool: PluginContext.Tool) -> Command {
+    func lint(url: URL, tool: PluginContext.Tool) -> Command {
         let executable = tool.url
         let arguments = [
             "format",
             "lint",
-            targetDirectory.relativePath,
+            url.relativePath,
             "--recursive",
             "--parallel"
         ]
