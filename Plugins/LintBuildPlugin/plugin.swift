@@ -9,10 +9,13 @@ struct LintBuildPlugin: BuildToolPlugin {
 
     /// Entry point for creating build commands for targets in Swift packages.
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
-        let tool = try context.tool(named: swift)
-        return [
-            lint(url: target.directoryURL, tool: tool),
-            lint(url: context.package.directoryURL.appending(path: "Package.swift"), tool: tool),
+        [
+            try lint(
+                tool: context.tool(named: swift),
+                pluginWorkDirectory: context.pluginWorkDirectoryURL,
+                files: (target.sourceModule?.sourceFiles.map(\.url) ?? [])
+                    + [context.package.directoryURL.appending(path: "Package.swift")]
+            )
         ]
     }
 }
@@ -21,26 +24,51 @@ struct LintBuildPlugin: BuildToolPlugin {
 import XcodeProjectPlugin
 
 extension LintBuildPlugin: XcodeBuildToolPlugin {
-    // Entry point for creating build commands for targets in Xcode projects.
+    /// Entry point for creating build commands for targets in Xcode projects.
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        [try lint(url: context.xcodeProject.directoryURL, tool: context.tool(named: swift))]
+        [
+            try lint(
+                tool: context.tool(named: swift),
+                pluginWorkDirectory: context.pluginWorkDirectoryURL,
+                files: target.inputFiles.map(\.url)
+            )
+        ]
     }
 }
 
 #endif
 
 private extension LintBuildPlugin {
-    func lint(url: URL, tool: PluginContext.Tool) -> Command {
+    func lint(
+        tool: PluginContext.Tool,
+        pluginWorkDirectory: URL,
+        files: [URL]
+    ) throws -> Command {
         let executable = tool.url
+        let swiftFiles = files.filter { $0.pathExtension == "swift" }
+
         let arguments = [
             "format",
             "lint",
-            url.relativePath,
-            "--recursive",
             "--parallel"
-        ]
+        ] + swiftFiles.map { $0.path(percentEncoded: false) }
 
         let displayName = "Linting the source code: \(executable.relativePath) \(arguments.joined(separator: " "))"
-        return .buildCommand(displayName: displayName, executable: executable, arguments: arguments)
+        return .buildCommand(
+            displayName: displayName,
+            executable: executable,
+            arguments: arguments,
+            inputFiles: swiftFiles,
+            outputFiles: [try recordStamp(pluginWorkDirectory: pluginWorkDirectory)]
+        )
+    }
+
+    /// Create a stamp file for "outputFiles" as a hack so we only run when input files are edited.
+    ///
+    /// This is a hack because we need to declare both input and output files to only run when input files change.
+    private func recordStamp(pluginWorkDirectory: URL) throws -> URL {
+        let stamp = pluginWorkDirectory.appending(path: "lint.stamp")
+        try Data().write(to: stamp)
+        return stamp
     }
 }
