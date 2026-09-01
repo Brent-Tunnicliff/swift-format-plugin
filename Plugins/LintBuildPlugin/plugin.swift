@@ -21,25 +21,24 @@ struct LintBuildPlugin: BuildToolPlugin {
 }
 
 #if canImport(XcodeProjectPlugin)
-import XcodeProjectPlugin
+    import XcodeProjectPlugin
 
-extension LintBuildPlugin: XcodeBuildToolPlugin {
-    /// Entry point for creating build commands for targets in Xcode projects.
-    func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        [
-            try lint(
-                tool: context.tool(named: swift),
-                pluginWorkDirectory: context.pluginWorkDirectoryURL,
-                files: target.inputFiles.map(\.url)
-            )
-        ]
+    extension LintBuildPlugin: XcodeBuildToolPlugin {
+        /// Entry point for creating build commands for targets in Xcode projects.
+        func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
+            [
+                try lint(
+                    tool: context.tool(named: swift),
+                    pluginWorkDirectory: context.pluginWorkDirectoryURL,
+                    files: target.inputFiles.map(\.url)
+                )
+            ]
+        }
     }
-}
-
 #endif
 
-private extension LintBuildPlugin {
-    func lint(
+extension LintBuildPlugin {
+    private func lint(
         tool: PluginContext.Tool,
         pluginWorkDirectory: URL,
         files: [URL]
@@ -47,11 +46,7 @@ private extension LintBuildPlugin {
         let executable = tool.url
         let swiftFiles = files.filter { $0.pathExtension == "swift" }
 
-        let arguments = [
-            "format",
-            "lint",
-            "--parallel"
-        ] + swiftFiles.map { $0.path(percentEncoded: false) }
+        let arguments = ["format", "lint", "--parallel"] + swiftFiles.map { $0.path(percentEncoded: false) }
 
         let displayName = "Linting the source code: \(executable.relativePath) \(arguments.joined(separator: " "))"
         return .buildCommand(
