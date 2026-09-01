@@ -5,7 +5,7 @@
 [![Pipeline](https://github.com/Brent-Tunnicliff/swift-format-plugin/actions/workflows/pipeline.yml/badge.svg)](https://github.com/Brent-Tunnicliff/swift-format-plugin/actions/workflows/pipeline.yml)
 [![](https://img.shields.io/github/license/Brent-Tunnicliff/swift-format-plugin)](https://github.com/Brent-Tunnicliff/swift-format-plugin/blob/main/LICENSE)
 
-Swift build plugin for the swift format tool.
+Swift build plugin for the [swift format](https://github.com/swiftlang/swift-format) tool which is bundled with Swift from 6.0 onwards.
 
 Currently only supports linting during build via `LintBuildPlugin`.
 
@@ -19,7 +19,7 @@ Add the `LintBuildPlugin` plugin to the targets you want to apply lint to at bui
 let package = Package(
     // ...
     dependencies: [
-        .package(url: "https://github.com/Brent-Tunnicliff/swift-format-plugin", .upToNextMajor(from: "2.0.0")) // <- Add dependency
+        .package(url: "https://github.com/Brent-Tunnicliff/swift-format-plugin", from: "2.0.0") // <- Add dependency
     ],
     targets: [
         .target(
