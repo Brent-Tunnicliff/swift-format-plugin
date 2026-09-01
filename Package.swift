@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 // Copyright © 2023 Brent Tunnicliff <brent@tunnicliff.dev>
 
@@ -10,13 +10,16 @@ let package = Package(
         .plugin(
             name: "LintBuildPlugin",
             targets: ["LintBuildPlugin"]
-        ),
+        )
     ],
     targets: [
         .plugin(
             name: "LintBuildPlugin",
-            capability: .buildTool(),
-            path: "Plugins/LintBuildPlugin"
+            capability: .buildTool()
+        ),
+        .testTarget(
+            name: "InternalDebuggingTarget",
+            plugins: ["LintBuildPlugin"]
         ),
     ]
 )
